@@ -79,3 +79,42 @@
 21:12:05.274227 version@stat F·[2 1] S·384B[256B 128B] Sc·[0.50 0.00]
 21:12:05.283425 db@janitor F·5 G·0
 21:12:05.283459 db@open done T·19.36841ms
+=============== Sep 18, 2019 (UTC) ===============
+09:08:54.567319 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:08:54.567467 version@stat F·[2 1] S·384B[256B 128B] Sc·[0.50 0.00]
+09:08:54.567503 db@open opening
+09:08:54.567593 journal@recovery F·1
+09:08:54.569852 journal@recovery recovering @19
+09:08:54.574780 memdb@flush created L0@21 N·1 S·128B "applied,v145":"applied,v145"
+09:08:54.576946 version@stat F·[3 1] S·512B[384B 128B] Sc·[0.75 0.00]
+09:08:54.587713 db@janitor F·6 G·0
+09:08:54.587735 db@open done T·20.221213ms
+=============== Sep 18, 2019 (UTC) ===============
+09:13:38.845814 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:13:38.845922 version@stat F·[3 1] S·512B[384B 128B] Sc·[0.75 0.00]
+09:13:38.845932 db@open opening
+09:13:38.845979 journal@recovery F·1
+09:13:38.848323 journal@recovery recovering @22
+09:13:38.853633 memdb@flush created L0@24 N·1 S·128B "applied,v147":"applied,v147"
+09:13:38.855828 version@stat F·[4 1] S·640B[512B 128B] Sc·[1.00 0.00]
+09:13:38.865002 db@janitor F·7 G·0
+09:13:38.865033 db@open done T·19.091836ms
+09:13:38.865088 table@compaction L0·4 -> L1·1 S·640B Q·148
+09:13:38.874823 table@build created L1@27 N·1 S·128B "applied,v147":"applied,v147"
+09:13:38.874886 version@stat F·[0 1] S·128B[0B 128B] Sc·[0.00 0.00]
+09:13:38.884662 table@compaction committed F-4 S-512B Ke·0 D·4 T·19.536473ms
+09:13:38.884718 table@remove removed @24
+09:13:38.884745 table@remove removed @21
+09:13:38.884767 table@remove removed @18
+09:13:38.884787 table@remove removed @15
+09:13:38.884808 table@remove removed @14
+=============== Sep 18, 2019 (UTC) ===============
+09:14:07.553816 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:14:07.553919 version@stat F·[0 1] S·128B[0B 128B] Sc·[0.00 0.00]
+09:14:07.553929 db@open opening
+09:14:07.554323 journal@recovery F·1
+09:14:07.556588 journal@recovery recovering @25
+09:14:07.562120 memdb@flush created L0@28 N·1 S·128B "applied,v149":"applied,v149"
+09:14:07.564331 version@stat F·[1 1] S·256B[128B 128B] Sc·[0.25 0.00]
+09:14:07.573746 db@janitor F·4 G·0
+09:14:07.573774 db@open done T·19.820332ms
