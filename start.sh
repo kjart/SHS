@@ -15,5 +15,6 @@ screen -d -m -S quorumNode bash -c 'PRIVATE_CONFIG=constellation1.conf ./geth --
 echo "...........exiting quorumNode"
 cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
 echo "...........starting gethNode"
-screen -d -m -S gethNode 
- 
+screen -S gethNode
+echo "...........in gethNode screen now"
+./geth attach ipc:./qdata/node1/geth.ipc
