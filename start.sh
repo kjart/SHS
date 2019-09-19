@@ -10,4 +10,4 @@ screen -d -m -S constellationNode bash -c './constellation-node constellation1.c
 cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
 screen -d -m -S quorumNode bash -c 'PRIVATE_CONFIG=constellation1.conf ./geth --datadir qdata/node1 --port 23000 --raftport 21000 --raft --ipcpath ./geth.ipc'
 cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
-screen -d -m -S gethNode 
+screen -S gethNode 
