@@ -18,4 +18,8 @@ cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
 sleep 10s
 echo "...........starting gethNode screen"
 screen -S gethNode
+screen -d
+echo "...........detached from gethNode screen"
+echo "...........reattaching to gethNode screen"
+screen -r gethNode
 ./geth attach ipc:./qdata/node1/geth.ipc
