@@ -5,9 +5,9 @@
 3. ./start.sh
 4. screen -ls 
 
-If you see only 2 screens after step 4, goto step 5, else skip to step 6
+If you see only 1 screen after step 4, goto step 5, else skip to step 6
 
-5. screen -d -m -S quorumNode bash -c 'PRIVATE_CONFIG=constellation1.conf ./geth --datadir qdata/node1 --port 23000 --raftport 21000 --raft --ipcpath ./geth.ipc' 
+5. cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft && screen -d -m -S quorumNode bash -c 'PRIVATE_CONFIG=constellation1.conf ./geth --datadir qdata/node1 --port 23000 --raftport 21000 --raft --ipcpath ./geth.ipc' 
 6. screen -S gethNode
 7. ./geth attach ipc:./qdata/node1/geth.ipc
 8. personal.listAccounts
