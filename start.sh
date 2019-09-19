@@ -14,6 +14,8 @@ sleep 10s
 echo "...........starting quorumNode"
 screen -d -m -S quorumNode bash -c 'PRIVATE_CONFIG=constellation1.conf ./geth --datadir qdata/node1 --port 23000 --raftport 21000 --raft --ipcpath ./geth.ipc'
 echo "...........exiting quorumNode"
-# cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
-# echo "...........starting gethNode"
-# screen -d -m -S gethNode
+cd /home/ubuntu/quorumTemplate/blockhain/workspace/raft
+sleep 10s
+echo "...........starting gethNode screen"
+screen -S gethNode
+./geth attach ipc:./qdata/node1/geth.ipc
