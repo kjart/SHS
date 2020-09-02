@@ -1,0 +1,64 @@
+pragma solidity ^ 0.4.17;
+
+contract SmartHealthSystem{
+m6    
+    string deviceID;
+    
+    struct Device{
+        string deviceName;
+        string deviceType; 
+        string serialNumber;
+        string hospitalDomainOwnerAddress;
+    }
+    
+    mapping(string => Device) devices;
+    mapping(string => bool) isDeviceRegistered;
+    mapping(string => mapping(string => uint)) trustScoreForDevices;
+    
+    event DeviceEvent(string _actionPerformed, string _deviceID, string _deviceName, string _deviceType, string _serialNumber, string _hospitalDomainOwnerAddress, uint256 _timestamp);
+    
+    function registerDevice(string _deviceID, string _deviceName, string _deviceType, string _serialNumber, string _hospitalDomainOwnerAddress){
+        require(isDeviceRegistered[_deviceID] == false);
+        devices[_deviceID].deviceName = _deviceName;
+        devices[_deviceID].deviceType = _deviceType;
+        devices[_deviceID].serialNumber = _serialNumber;
+        devices[_deviceID].hospitalDomainOwnerAddress = _hospitalDomainOwnerAddress;
+        isDeviceRegistered[_deviceID] = true;
+        
+        DeviceEvent("DEVICE REGISTERED", _deviceID, _deviceName, _deviceType, _serialNumber, _hospitalDomainOwnerAddress, now);
+    }
+    
+    function updateDevice(string _deviceID, string _deviceName, string _deviceType, string _serialNumber, string _hospitalDomainOwnerAddress){
+        require(isDeviceRegistered[_deviceID] == true);
+        devices[_deviceID].deviceName = _deviceName;
+        devices[_deviceID].deviceType = _deviceType;
+        devices[_deviceID].serialNumber = _serialNumber;
+        devices[_deviceID].hospitalDomainOwnerAddress = _hospitalDomainOwnerAddress;
+
+        DeviceEvent("DEVICE UPDATED", _deviceID, _deviceName, _deviceType, _serialNumber, _hospitalDomainOwnerAddress, now);
+    }
+    
+    function getDeviceDetails(string _deviceID) returns(string, string, string, string){
+        require(isDeviceRegistered[_deviceID] == true);
+        return(devices[_deviceID].deviceName, devices[_deviceID].deviceType, devices[_deviceID].serialNumber, devices[_deviceID].hospitalDomainOwnerAddress);
+    }
+    
+   function requestDataResourceAccess(string _deviceID, string _hospitalDomainOwnerAddress) returns(string){
+       require(isDeviceRegistered[_deviceID] == true);
+       if(trustScoreForDevices[_hospitalDomainOwnerAddress][_deviceID] == 1){
+           return "ACESS GRANTED";
+       } else return "ACCESS DENIED";
+   }
+    
+    function updateTrustScore(string _deviceID, string _hospitalDomainOwnerAddress, uint _trustScore){
+        require(isDeviceRegistered[_deviceID] == true);
+        trustScoreForDevices[_hospitalDomainOwnerAddress][_deviceID] = _trustScore;
+        
+        DeviceEvent("DEVICE TRUST SCORE UPDATED", _deviceID, devices[_deviceID].deviceName, devices[_deviceID].deviceType, devices[_deviceID].serialNumber, devices[_deviceID].hospitalDomainOwnerAddress, now);
+    }
+    
+    function getTrustScoreForDevice(string _deviceID, string _hospitalDomainOwnerAddress) returns(uint){
+        return trustScoreForDevices[_hospitalDomainOwnerAddress][_deviceID]; 
+    }
+    
+}

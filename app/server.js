@@ -31,11 +31,11 @@ app.use(cors());
 
 app.get('/', function(req, res) {
 
-    res.send("This API server is developed for DataManager");
+    res.send("This API server is developed for SHS");
 })
 
 //API handlers
-app.use('/api/dataManager', require('./api/dataManager'));
+app.use('/api/v1', require('./api/dataManager'));
 
 app.listen(3001, function() {
     console.log('app running on port : 3001');

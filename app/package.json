@@ -1,5 +1,5 @@
 {
-  "name": "api_server",
+  "name": "blockchain_api_server",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -9,9 +9,9 @@
   "keywords": [
     "Developed",
     "for",
-    "DataManager"
+    "SHS"
   ],
-  "author": "RITAM GUPTA",
+  "author": "KHADIJAT YUSUF",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.16.1",
@@ -19,7 +19,8 @@
     "cors": "^2.8.1",
     "express": "^4.14.1",
     "express-session": "^1.15.1",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.19.4",
+    "request": "^2.88.2",
     "web3": "^0.18.2"
   }
 }

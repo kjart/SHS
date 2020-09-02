@@ -2,6 +2,7 @@ var dataManagerApiRoutes = require('express').Router();
 
 var Web3 = require('web3');
 var config = require('../config/config')
+var request = require('request');
 
 var web3;
 if (typeof web3 !== 'undefined') {
@@ -15,18 +16,25 @@ web3.eth.defaultAccount = web3.eth.coinbase;
 
 var dataManagerContractAddress = config.dataManagerContractAddress;
 
-
 // now contract interface
 var dataManagerContractABI = [
 	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_brandSerialId",
+				"name": "_deviceID",
 				"type": "string"
+			},
+			{
+				"name": "_hospitalDomainOwnerAddress",
+				"type": "string"
+			},
+			{
+				"name": "_trustScore",
+				"type": "uint256"
 			}
 		],
-		"name": "destroyBrand",
+		"name": "updateTrustScore",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -36,31 +44,49 @@ var dataManagerContractABI = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_brandSerialId",
+				"name": "_deviceID",
+				"type": "string"
+			},
+			{
+				"name": "_deviceName",
+				"type": "string"
+			},
+			{
+				"name": "_deviceType",
+				"type": "string"
+			},
+			{
+				"name": "_serialNumber",
+				"type": "string"
+			},
+			{
+				"name": "_hospitalDomainOwnerAddress",
 				"type": "string"
 			}
 		],
-		"name": "getBrandDetails",
+		"name": "registerDevice",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_deviceID",
+				"type": "string"
+			},
+			{
+				"name": "_hospitalDomainOwnerAddress",
+				"type": "string"
+			}
+		],
+		"name": "getTrustScoreForDevice",
 		"outputs": [
 			{
 				"name": "",
 				"type": "uint256"
-			},
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "bool"
-			},
-			{
-				"name": "",
-				"type": "bool"
-			},
-			{
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -71,25 +97,28 @@ var dataManagerContractABI = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_brandImageHash",
-				"type": "string"
-			}
-		],
-		"name": "getBrandImageDetails",
-		"outputs": [
-			{
-				"name": "",
+				"name": "_deviceID",
 				"type": "string"
 			},
 			{
-				"name": "",
+				"name": "_deviceName",
 				"type": "string"
 			},
 			{
-				"name": "",
+				"name": "_deviceType",
+				"type": "string"
+			},
+			{
+				"name": "_serialNumber",
+				"type": "string"
+			},
+			{
+				"name": "_hospitalDomainOwnerAddress",
 				"type": "string"
 			}
 		],
+		"name": "updateDevice",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -98,11 +127,11 @@ var dataManagerContractABI = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_businessId",
-				"type": "uint256"
+				"name": "_deviceID",
+				"type": "string"
 			}
 		],
-		"name": "getBusinessDetails",
+		"name": "getDeviceDetails",
 		"outputs": [
 			{
 				"name": "",
@@ -119,204 +148,31 @@ var dataManagerContractABI = [
 			{
 				"name": "",
 				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_deviceID",
+				"type": "string"
 			},
+			{
+				"name": "_hospitalDomainOwnerAddress",
+				"type": "string"
+			}
+		],
+		"name": "requestDataResourceAccess",
+		"outputs": [
 			{
 				"name": "",
 				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "string"
 			}
 		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"name": "_additionalParametersJson",
-				"type": "string"
-			},
-			{
-				"name": "_isUsed",
-				"type": "bool"
-			},
-			{
-				"name": "_isLive",
-				"type": "bool"
-			}
-		],
-		"name": "registerBrand",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_brandImageHash",
-				"type": "string"
-			},
-			{
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"name": "_imageTitle",
-				"type": "string"
-			},
-			{
-				"name": "_imageDescription",
-				"type": "string"
-			}
-		],
-		"name": "registerBrandImage",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"name": "_businessName",
-				"type": "string"
-			},
-			{
-				"name": "_businessAddress",
-				"type": "string"
-			},
-			{
-				"name": "_businessCity",
-				"type": "string"
-			},
-			{
-				"name": "_businessState",
-				"type": "string"
-			},
-			{
-				"name": "_businessCountryCode",
-				"type": "string"
-			},
-			{
-				"name": "_businessZipCode",
-				"type": "string"
-			}
-		],
-		"name": "registerBusiness",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"name": "_additionalParametersJson",
-				"type": "string"
-			},
-			{
-				"name": "_isUsed",
-				"type": "bool"
-			},
-			{
-				"name": "_isLive",
-				"type": "bool"
-			}
-		],
-		"name": "updateBrand",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_brandImageHash",
-				"type": "string"
-			},
-			{
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"name": "_imageTitle",
-				"type": "string"
-			},
-			{
-				"name": "_imageDescription",
-				"type": "string"
-			}
-		],
-		"name": "updateBrandImage",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"name": "_businessName",
-				"type": "string"
-			},
-			{
-				"name": "_businessAddress",
-				"type": "string"
-			},
-			{
-				"name": "_businessCity",
-				"type": "string"
-			},
-			{
-				"name": "_businessState",
-				"type": "string"
-			},
-			{
-				"name": "_businessCountryCode",
-				"type": "string"
-			},
-			{
-				"name": "_businessZipCode",
-				"type": "string"
-			}
-		],
-		"name": "updateBusiness",
-		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -331,37 +187,27 @@ var dataManagerContractABI = [
 			},
 			{
 				"indexed": false,
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "_businessName",
+				"name": "_deviceID",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "_businessAddress",
+				"name": "_deviceName",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "_businessCity",
+				"name": "_deviceType",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "_businessState",
+				"name": "_serialNumber",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"name": "_businessCountryCode",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_businessZipCode",
+				"name": "_hospitalDomainOwnerAddress",
 				"type": "string"
 			},
 			{
@@ -370,91 +216,7 @@ var dataManagerContractABI = [
 				"type": "uint256"
 			}
 		],
-		"name": "BusinessEvent",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "_actionPerformed",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_businessId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_additionalParametersJson",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_isUsed",
-				"type": "bool"
-			},
-			{
-				"indexed": false,
-				"name": "_isLive",
-				"type": "bool"
-			},
-			{
-				"indexed": false,
-				"name": "_expiredOn",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "BrandEvent",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "_actionPerformed",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_brandSerialId",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_brandImageHash",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_imageTitle",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_imageDescription",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "BrandImageEvent",
+		"name": "DeviceEvent",
 		"type": "event"
 	}
 ];
@@ -464,29 +226,26 @@ var dataManagerContract = web3.eth.contract(dataManagerContractABI).at(dataManag
 
 dataManagerApiRoutes.get('/', function(req, res) {
 
-    res.send("Data Manager API server");
+    res.send("Smart Health System API server");
 
 });
 
-dataManagerApiRoutes.post('/registerBusiness', function(req, res) {
+dataManagerApiRoutes.post('/register/device', function(req, res) {
 
-    var businessId = req.body._businessId;
-    var businessName = req.body._businessName;
-    var businessAddress = req.body._businessAddress;
-    var businessCity = req.body._businessCity;
-    var businessState = req.body._businessState;
-    var businessCountryCode = req.body._businessCountryCode;
-    var businessZipCode = req.body._businessZipCode;
+    var deviceID = req.body._deviceID;
+    var deviceName = req.body._deviceName;
+    var deviceType = req.body._deviceType;
+    var serialNumber = req.body._serialNumber;
+    var hospitalDomainOwnerAddress = req.body._hospitalDomainOwnerAddress;
 
 
-    dataManagerContract.registerBusiness.sendTransaction(businessId, businessName, businessAddress, businessCity, businessState, businessCountryCode, businessZipCode, {
+    dataManagerContract.registerDevice.sendTransaction(deviceID, deviceName, deviceType, serialNumber, hospitalDomainOwnerAddress, {
         from: web3.eth.defaultAccount,
-        gas: 400000
+        gas: 9000000
     }, function(err, result) {
         console.log(result);
         if (!err) {
 
-            //console.log(response);
             res.json(result);
         } else
             res.status(401).json("Error" + err);
@@ -494,25 +253,22 @@ dataManagerApiRoutes.post('/registerBusiness', function(req, res) {
 });
 
 
-dataManagerApiRoutes.post('/updateBusiness', function(req, res) {
+dataManagerApiRoutes.post('/update/device', function(req, res) {
 
-    var businessId = req.body._businessId;
-    var businessName = req.body._businessName;
-    var businessAddress = req.body._businessAddress;
-    var businessCity = req.body._businessCity;
-    var businessState = req.body._businessState;
-    var businessCountryCode = req.body._businessCountryCode;
-    var businessZipCode = req.body._businessZipCode;
+    var deviceID = req.body._deviceID;
+    var deviceName = req.body._deviceName;
+    var deviceType = req.body._deviceType;
+    var serialNumber = req.body._serialNumber;
+    var hospitalDomainOwnerAddress = req.body._hospitalDomainOwnerAddress;
 
 
-    dataManagerContract.updateBusiness.sendTransaction(businessId, businessName, businessAddress, businessCity, businessState, businessCountryCode, businessZipCode, {
+    dataManagerContract.updateDevice.sendTransaction(deviceID, deviceName, deviceType, serialNumber, hospitalDomainOwnerAddress, {
         from: web3.eth.defaultAccount,
-        gas: 400000
+        gas: 9000000
     }, function(err, result) {
         console.log(result);
         if (!err) {
 
-            //console.log(response);
             res.json(result);
         } else
             res.status(401).json("Error" + err);
@@ -520,242 +276,172 @@ dataManagerApiRoutes.post('/updateBusiness', function(req, res) {
 });
 
 
-dataManagerApiRoutes.post('/registerBrand', function(req, res) {
+dataManagerApiRoutes.post('/get/deviceDetails', function(req, res) {
 
-    var brandSerialId = req.body._brandSerialId;
-    var businessId = req.body._businessId;
-    var additionalParametersJson = req.body._additionalParametersJson;
-    var isUsed = req.body._isUsed;
-    var isLive = req.body._isLive;
-console.log(isUsed);
-console.log(isLive);
+    var deviceID = req.body._deviceID;
 
-    dataManagerContract.registerBrand.sendTransaction(brandSerialId, businessId, additionalParametersJson, isUsed, isLive, {
-        from: web3.eth.defaultAccount,
-        gas: 700000
-    }, function(err, result) {
-        console.log(result);
+    dataManagerContract.getDeviceDetails.call(deviceID, function(err, result) {
         if (!err) {
 
-            //console.log(response);
-            res.json(result);
-        } else
-            res.status(401).json("Error" + err);
-    });
-});
-
-
-dataManagerApiRoutes.post('/updateBrand', function(req, res) {
-
-    var brandSerialId = req.body._brandSerialId;
-    var businessId = req.body._businessId;
-    var additionalParametersJson = req.body._additionalParametersJson;
-    var isUsed = req.body._isUsed;
-    var isLive = req.body._isLive;
-
-
-    dataManagerContract.updateBrand.sendTransaction(brandSerialId, businessId, additionalParametersJson, isUsed, isLive, {
-        from: web3.eth.defaultAccount,
-        gas: 700000
-    }, function(err, result) {
-        console.log(result);
-        if (!err) {
-
-            //console.log(response);
-            res.json(result);
-        } else
-            res.status(401).json("Error" + err);
-    });
-});
-
-dataManagerApiRoutes.post('/destroyBrand', function(req, res) {
-
-    var brandSerialId = req.body._brandSerialId;
-
-    dataManagerContract.destroyBrand.sendTransaction(brandSerialId, {
-        from: web3.eth.defaultAccount,
-        gas: 400000
-    }, function(err, result) {
-        console.log(result);
-        if (!err) {
-
-            //console.log(response);
-            res.json(result);
-        } else
-            res.status(401).json("Error" + err);
-    });
-});
-
-dataManagerApiRoutes.post('/registerBrandImage', function(req, res) {
-
-    var brandImageHash = req.body._brandImageHash;
-    var brandSerialId = req.body._brandSerialId;
-    var imageTitle = req.body._imageTitle;
-    var imageDescription = req.body._imageDescription;
-
-
-    dataManagerContract.registerBrandImage.sendTransaction(brandImageHash, brandSerialId, imageTitle, imageDescription, {
-        from: web3.eth.defaultAccount,
-        gas: 400000
-    }, function(err, result) {
-        console.log(result);
-        if (!err) {
-
-            //console.log(response);
-            res.json(result);
-        } else
-            res.status(401).json("Error" + err);
-    });
-});
-
-dataManagerApiRoutes.post('/updateBrandImage', function(req, res) {
-
-    var brandImageHash = req.body._brandImageHash;
-    var brandSerialId = req.body._brandSerialId;
-    var imageTitle = req.body._imageTitle;
-    var imageDescription = req.body._imageDescription;
-
-
-    dataManagerContract.updateBrandImage.sendTransaction(brandImageHash, brandSerialId, imageTitle, imageDescription, {
-        from: web3.eth.defaultAccount,
-        gas: 400000
-    }, function(err, result) {
-        console.log(result);
-        if (!err) {
-
-            //console.log(response);
-            res.json(result);
-        } else
-            res.status(401).json("Error" + err);
-    });
-});
-
-dataManagerApiRoutes.post('/getBusinessDetails', function(req, res) {
-
-    var businessId = req.body._businessId;
-
-    dataManagerContract.getBusinessDetails.call(businessId, function(err, result) {
-        console.log(result);
-        if (!err) {
-
-            //console.log(response);
             res.json({
-                "businessName" : result[0],
-                "businessAddress" : result[1],
-                "businessCity" : result[2],
-                "businessState" : result[3],
-                "businessCountryCode" : result[4],
-				"businessZipCode" : result[5]
+            	"deviceName" : result[0],
+            	"deviceType" : result[1],
+            	"serialNumber" : result[2],
+            	"hospitalDomainOwnerAddress" : result[3]
             });
         } else
-            res.status(401).json("Error" + err);
+        	res.status(401).json("Error" + err);
     });
 
 })
 
-dataManagerApiRoutes.post('/getBrandDetails', function(req, res) {
+dataManagerApiRoutes.post('/get/trustScore/device', function(req, res) {
 
-    var brandSerialId = req.body._brandSerialId;
+    var deviceID = req.body._deviceID;
+    var hospitalDomainOwnerAddress = req.body._hospitalDomainOwnerAddress;
 
-    dataManagerContract.getBrandDetails.call(brandSerialId, function(err, result) {
-        console.log(result);
+    dataManagerContract.getTrustScoreForDevice.call(deviceID, hospitalDomainOwnerAddress, function(err, result) {
         if (!err) {
 
-            //console.log(response);
             res.json({
-                "businessId" : result[0],
-                "additionalParametersJson" : result[1],
-                "isUsed" : result[2],
-                "isLive" : result[3],
-                "expiredOn" : result[4]
+            	"trustScore" : result
             });
         } else
-            res.status(401).json("Error" + err);
+        	res.status(401).json("Error" + err);
     });
 
 })
 
-dataManagerApiRoutes.post('/getBrandImageDetails', function(req, res) {
+dataManagerApiRoutes.post('/update/trustScore', function(req, res) {
 
-    var brandImageHash = req.body._brandImageHash;
+    var deviceID = req.body._deviceID;
+    var hospitalDomainOwnerAddress = req.body._hospitalDomainOwnerAddress;
+    var trustScore = req.body._trustScore;
 
-    dataManagerContract.getBrandImageDetails.call(brandImageHash, function(err, result) {
+    dataManagerContract.updateTrustScore.sendTransaction(deviceID, hospitalDomainOwnerAddress, trustScore, {
+        from: web3.eth.defaultAccount,
+        gas: 9000000
+    }, function(err, result) {
         console.log(result);
         if (!err) {
 
-            //console.log(response);
-            res.json({
-                "brandSerialId" : result[0],
-                "imageTitle" : result[1],
-                "imageDescription" : result[2]
-            });
+            res.json(result);
         } else
             res.status(401).json("Error" + err);
+    });
+});
+
+dataManagerApiRoutes.post('/request/dataResourceAccess', function(req, res) {
+
+    var deviceID = req.body._deviceID;
+    var hospitalDomainOwnerAddress = req.body._hospitalDomainOwnerAddress;
+
+    dataManagerContract.requestDataResourceAccess.call(deviceID, hospitalDomainOwnerAddress, function(err, result) {
+        if (!err) {
+
+            res.json({
+            	"accessStatus" : result
+            });
+        } else
+        	res.status(401).json("Error" + err);
     });
 
 })
 
-dataManagerApiRoutes.get('/getBusinessLogs', function(req, res) {
+dataManagerApiRoutes.get('/get/deviceLogs', function(req, res) {
 
-    var registerBusinessEvent = dataManagerContract.BusinessEvent({
+    var deviceEvent = dataManagerContract.DeviceEvent({
         from: web3.eth.defaultAccount
     }, {
         fromBlock: 0,
         toBlock: 'latest'
     });
 
-    registerBusinessEvent.get(function(err, result) {
+    deviceEvent.get(function(err, result) {
         //console.log(result);
         if (!err) {
+        	var arrayLength = result.length;
+            console.log(arrayLength)
+            var processedArray = [];
+            for (var i = 0; i < arrayLength; i++) {
+            	
+            		processedArray.push(
 
+                        {
+
+                            "address": result[i].address,
+                            "blockNumber": result[i].blockNumber,
+                            "transactionHash": result[i].transactionHash,
+                            "blockHash": result[i].blockHash,
+                            "actionPerformed": result[i].args._actionPerformed,
+                            "deviceID": result[i].args._deviceID,
+                            "deviceName": result[i].args._deviceName,
+                            "deviceType": result[i].args._deviceType,
+                            "serialNumber": result[i].args._serialNumber,
+                            "hospitalDomainOwnerAddress": result[i].args._hospitalDomainOwnerAddress,
+                            "timestamp" : result[i].args._timestamp
+                        }
+
+                    )
+
+            }
             //console.log(response);
-            res.json(result);
+            res.json(processedArray);
         } else
             return res.json("Error" + err);
     });
 
 })
 
-dataManagerApiRoutes.get('/getBrandLogs', function(req, res) {
 
-    var registerBrandEvent = dataManagerContract.BrandEvent({
-        from: web3.eth.defaultAccount
-    }, {
-        fromBlock: 0,
-        toBlock: 'latest'
-    });
+dataManagerApiRoutes.post('/generate/blockchainIdentity/hospitalDomain', function(req, res) {
 
-    registerBrandEvent.get(function(err, result) {
-        //console.log(result);
-        if (!err) {
 
-            //console.log(response);
-            res.json(result);
-        } else
-            return res.json("Error" + err);
-    });
+    var options = { method: 'POST',
+  url: 'http://localhost:8545',
+  headers: 
+   { 'Postman-Token': 'd68c75a7-85d4-446b-8b15-0eade6b5e3ad',
+     'cache-control': 'no-cache',
+     'Content-Type': 'application/json' },
+  body: 
+   { id: '1',
+     jsonrpc: '2.0',
+     method: 'personal_newAccount',
+     params: [ req.body._password ] },
+  json: true };
 
-})
+request(options, function (error, response, body) {
+  if (error) throw new Error(error);
 
-dataManagerApiRoutes.get('/getBrandImageLogs', function(req, res) {
+  res.json({"blockchainAddress" : body.result});
+  
+});
+});
 
-    var registerBrandImageEvent = dataManagerContract.BrandImageEvent({
-        from: web3.eth.defaultAccount
-    }, {
-        fromBlock: 0,
-        toBlock: 'latest'
-    });
 
-    registerBrandImageEvent.get(function(err, result) {
-        //console.log(result);
-        if (!err) {
+dataManagerApiRoutes.post('/get/transactionDetails', function(req, res) {
 
-            //console.log(response);
-            res.json(result);
-        } else
-            return res.json("Error" + err);
-    });
 
-})
+    var options = { method: 'POST',
+  url: 'http://localhost:8545',
+  headers: 
+   { 'cache-control': 'no-cache',
+     'Content-Type': 'application/json' },
+  body: 
+   { jsonrpc: '2.0',
+     method: 'eth_getTransactionReceipt',
+     params: [ req.body._txhash ],
+     id: 1 },
+  json: true };
+
+request(options, function (error, response, body) {
+  if (error) throw new Error(error);
+
+  res.json(body);
+});
+});
+
+
+//--------------------------------------------
 
 module.exports = dataManagerApiRoutes;
